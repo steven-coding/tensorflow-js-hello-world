@@ -49,6 +49,9 @@ rm -f ~/cuda-keyring*.deb ~/libtinfo5*.deb
 
 ```bash
 npm install
+
+# Set library path to CUDA 11.8 before running
+export LD_LIBRARY_PATH=/usr/local/cuda-11.8/lib64:$LD_LIBRARY_PATH
 npm start
 ```
 
