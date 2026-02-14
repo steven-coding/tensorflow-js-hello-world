@@ -16,7 +16,15 @@ export async function isCatClassifier(): Promise<void> {
   if (fs.existsSync(modelJsonPath)) {
     console.log("Loading saved model...");
     model = await tf.loadLayersModel(`file://${modelJsonPath}`);
-    console.log("Model loaded.");
+
+    // Re-compile the model after loading
+    model.compile({
+      optimizer: "adam",
+      loss: "binaryCrossentropy",
+      metrics: ["accuracy"],
+    });
+
+    console.log("Model loaded and compiled.");
   } else {
     const trainDir = path.join(DATA_DIR, "train");
     if (!fs.existsSync(trainDir)) {
@@ -71,4 +79,26 @@ export async function isCatClassifier(): Promise<void> {
 
   model.dispose();
   console.log("\nDone. GPU memory cleaned up.");
+}
+
+export async function predict(
+  modelPath: string,
+  imagePath: string
+): Promise<{ isCat: boolean; confidence: number; label: string }> {
+  const absoluteModelPath = path.resolve(modelPath);
+  const absoluteImagePath = path.resolve(imagePath);
+
+  const model = await tf.loadLayersModel(`file://${absoluteModelPath}`);
+
+  model.compile({
+    optimizer: "adam",
+    loss: "binaryCrossentropy",
+    metrics: ["accuracy"],
+  });
+
+  const result = predictImage(model, absoluteImagePath);
+
+  model.dispose();
+
+  return result;
 }

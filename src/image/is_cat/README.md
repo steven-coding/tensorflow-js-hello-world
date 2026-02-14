@@ -7,17 +7,19 @@ Classifies whether an image contains a cat (1) or not (0).
 
 ```
 Input (128x128x3)
-  → Conv2D (32 filters, 3x3, ReLU) → MaxPooling2D (2x2)    Output: 63x63x32
-  → Conv2D (64 filters, 3x3, ReLU) → MaxPooling2D (2x2)    Output: 30x30x64
-  → Flatten                                                   Output: 57600
+  → Conv2D (16 filters, 3x3, ReLU, L2=0.001) → MaxPooling2D (2x2) → Dropout (0.25)
+  → Conv2D (32 filters, 3x3, ReLU, L2=0.001) → MaxPooling2D (2x2) → Dropout (0.25)
+  → Flatten
   → Dropout (0.5)
-  → Dense (128, ReLU)
+  → Dense (64, ReLU, L2=0.001) → Dropout (0.3)
   → Dense (1, Sigmoid)                                        Output: probability [0, 1]
 ```
 
 - **Optimizer**: Adam
 - **Loss**: Binary Crossentropy
 - **Metrics**: Accuracy
+- **Regularization**: L2 (0.001) on all conv and dense layers
+- **Dropout**: 0.25 after conv blocks, 0.5 and 0.3 in classification head
 
 ## Image Dimensions: 128x128 px (RGB)
 
@@ -84,7 +86,7 @@ data/is_cat/
 
 | Parameter        | Value | Notes                              |
 |------------------|-------|------------------------------------|
-| Epochs           | 20    | Sufficient for convergence         |
+| Epochs           | 50    | With early stopping (patience 5)   |
 | Batch Size       | 32    | Standard for GPU training          |
 | Max Images/Class | 1000  | Limits GPU memory usage            |
 
